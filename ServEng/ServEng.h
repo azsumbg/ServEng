@@ -14,7 +14,7 @@ constexpr float scr_height{ 800.0f };
 constexpr float sky{ 50.0f };
 constexpr float ground{ 750.0f };
 
-enum class dirs { left = 0, right = 1, up = 2, dowm = 3, stop = 4 };
+enum class dirs { left = 0, right = 1, up = 2, down = 3, stop = 4 };
 
 struct FPOINT
 {
@@ -24,26 +24,25 @@ struct FPOINT
 
 // GAME ACTIVE CREATURES
 
-uint16_t no_creature{ 0 };
-uint16_t fish1{ 0b0000000000000001 };
-uint16_t fish2{ 0b0000000000000010 };
-uint16_t fish3{ 0b0000000000000100 };
-uint16_t fish4{ 0b0000000000001000 };
-uint16_t fish5{ 0b0000000000010000 };
-uint16_t fish6{ 0b0000000000100000 };
-uint16_t fish7{ 0b0000000001000000 };
-uint16_t fish8{ 0b0000000010000000 };
-uint16_t fish9{ 0b0000000100000000 };
+constexpr uint16_t no_creature{ 0 };
+constexpr uint16_t fish1{ 0b0000000000000001 };
+constexpr uint16_t fish2{ 0b0000000000000010 };
+constexpr uint16_t fish3{ 0b0000000000000100 };
+constexpr uint16_t fish4{ 0b0000000000001000 };
+constexpr uint16_t fish5{ 0b0000000000010000 };
+constexpr uint16_t fish6{ 0b0000000000100000 };
+constexpr uint16_t fish7{ 0b0000000001000000 };
+constexpr uint16_t fish8{ 0b0000000010000000 };
+constexpr uint16_t fish9{ 0b0000000100000000 };
 
-uint16_t hero{ 0b0000001000000000 };
+constexpr uint16_t hero{ 0b0000001000000000 };
 
 // BACKGROUND CREATURES
 
-uint8_t bubbles{ 0b00000001 };
-uint8_t grass{ 0b00000010 };
-uint8_t jelly1{ 0b00000100 };
-uint8_t jelly2{ 0b00001000 };
-
+constexpr uint16_t bubbles{ 0b0000010000000000 };
+constexpr uint16_t grass{ 0b0000100000000000 };
+constexpr uint16_t jelly1{ 0b0001000000000000 };
+constexpr uint16_t jelly2{ 0b0010000000000000 };
 
 namespace dll
 {
@@ -89,6 +88,81 @@ namespace dll
 			void SetNewDims(float _new_width, float _new_height);
 	};
 
+	class SERVENG_API BASE_OBJECT :public PROTON
+	{
+		protected:
+			uint16_t type{ no_creature };
+			float move_sx{ 0 };
+			float move_sy{ 0 };
+			float move_ex{ 0 };
+			float move_ey{ 0 };
 
+			float slope{ 0 };
+			float intercept{ 0 };
 
+			bool hor_line = false;
+			bool vert_line = false;
+
+			void SetPathInfo(float _ex, float _ey);
+
+			BASE_OBJECT(uint16_t _what, float _wherex, float _wherey);
+	
+			float speed{ 0 };
+			int frame = 0;
+			int max_frames = 0;
+			int frame_delay = 0;
+
+		public:
+
+			int strenght = 0;
+			dirs dir = dirs::stop;
+
+			virtual ~BASE_OBJECT() {};
+
+			int GetFrame();
+			uint16_t GetType() const;
+
+			virtual bool Move(float gear, float to_where_x = 0, float to_where_y = 0) = 0;
+			virtual void Release() = 0;
+	};
+
+	class SERVENG_API EVILS :public dll::BASE_OBJECT
+	{
+	protected:
+		EVILS(uint16_t _what_evil, float put_x, float put_y);
+
+	public:
+		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
+		
+		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
+		void Release() override;
+	};
+
+	class SERVENG_API HERO :public dll::BASE_OBJECT
+	{
+	protected:
+		HERO(uint16_t _what_evil, float put_x, float put_y);
+
+	public:
+		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
+
+		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
+		void Release() override;
+	};
+
+	class SERVENG_API ASSETS :public dll::BASE_OBJECT
+	{
+	protected:
+		ASSETS(uint16_t _what_evil, float put_x, float put_y);
+
+	public:
+		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
+
+		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
+		void Release() override;
+	};
+
+	using Object = BASE_OBJECT*;
+
+	SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
 }
