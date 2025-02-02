@@ -252,6 +252,13 @@ void dll::BASE_OBJECT::SetPathInfo(float _ex, float _ey)
 	slope = (move_ey - move_sy) / (move_ex / move_sx);
 	intercept = move_sy - move_sx * slope;
 }
+float dll::BASE_OBJECT::Distance(FPOINT targ_point, FPOINT my_point)
+{
+	float a = static_cast<float>(pow(abs(my_point.x - targ_point.x), 2));
+	float b = static_cast<float>(pow(abs(my_point.y - targ_point.y), 2));
+
+	return sqrt(a + b);
+}
 int dll::BASE_OBJECT::GetFrame()
 {
 	--frame_delay;
@@ -330,6 +337,166 @@ uint16_t dll::BASE_OBJECT::GetType() const
 }
 
 ////////////////////////////////////
+
+// EVILS ***************************
+
+dll::EVILS::EVILS(uint16_t _what_evil, float put_x, float put_y) :BASE_OBJECT(_what_evil, put_x, put_y) {};
+FPOINT dll::EVILS::AINextMove(FPOINT hero)
+{
+	if (Distance(hero, center) <= 100)return hero;
+	else if (dir == dirs::left)return FPOINT{ 0,center.y };
+	else if (dir == dirs::right)return FPOINT{ scr_width, center.y };
+		
+	return center;
+}
+bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
+{
+	float now_speed = speed + gear / 10.0f;
+
+	SetPathInfo(to_where_x, to_where_y);
+
+	if (hor_line)
+	{
+		if (dir == dirs::right)
+		{
+			if (end.x + now_speed <= scr_width)
+			{
+				start.x += now_speed;
+				SetEdges();
+				return true;
+			}
+			else
+			{
+				dir = dirs::left;
+				return false;
+			}
+		}
+		else if (dir == dirs::left)
+		{
+			if (start.x - now_speed >= 0)
+			{
+				start.x -= now_speed;
+				SetEdges();
+				return true;
+			}
+			else
+			{
+				dir = dirs::right;
+				return false;
+			}
+		}
+	}
+	if (vert_line)
+	{
+		if (move_sy > move_ey)
+		{
+			start.y -= now_speed;
+			SetEdges();
+			if (start.y <= move_ey)
+			{
+				SetPathInfo(start.x, ground);
+				return false;
+			}
+			return true;
+		}
+		else if (move_sy < move_ey)
+		{
+			start.y += now_speed;
+			SetEdges();
+			if (end.y >= move_ey)
+			{
+				SetPathInfo(start.x, sky);
+				return false;
+			}
+			return true;
+		}
+
+	}
+
+	if (move_sx > move_ex)
+	{
+		start.x -= now_speed;
+		start.y = start.x * slope + intercept;
+		SetEdges();
+
+		if (start.x < 0)
+		{
+			start.x = 0;
+			SetEdges();
+			SetPathInfo(scr_width, start.y);
+			return false;
+		}
+		if (start.y < sky)
+		{
+			start.y = sky;
+			SetEdges();
+			SetPathInfo(start.x, ground);
+			return false;
+		}
+		if (end.y > ground)
+		{
+			start.y = ground - height;
+			SetEdges();
+			SetPathInfo(start.x, sky);
+			return false;
+		}
+		return true;
+	}
+	if (move_sx < move_ex)
+	{
+		start.x += now_speed;
+		start.y = start.x * slope + intercept;
+		SetEdges();
+
+		if (end.x > scr_width)
+		{
+			start.x = scr_width - width;
+			SetEdges();
+			SetPathInfo(0, start.y);
+			return false;
+		}
+		if (start.y < sky)
+		{
+			start.y = sky;
+			SetEdges();
+			SetPathInfo(start.x, ground);
+			return false;
+		}
+		if (end.y > ground)
+		{
+			start.y = ground - height;
+			SetEdges();
+			SetPathInfo(start.x, sky);
+			return false;
+		}
+		return true;
+	}
+
+	if (start.y < sky)
+	{
+		start.y = sky;
+		SetEdges();
+		SetPathInfo(start.x, ground);
+		return false;
+	}
+	if (end.y > ground)
+	{
+		start.y = ground - height;
+		SetEdges();
+		SetPathInfo(start.x, sky);
+		return false;
+	}
+	
+	return false;
+}
+void dll::EVILS::Release()
+{
+	delete this;
+}
+
+/////////////////////////////////////
+
+
 
 
 

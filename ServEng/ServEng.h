@@ -104,6 +104,7 @@ namespace dll
 			bool vert_line = false;
 
 			void SetPathInfo(float _ex, float _ey);
+			float Distance(FPOINT targ_point, FPOINT my_point);
 
 			BASE_OBJECT(uint16_t _what, float _wherex, float _wherey);
 	
@@ -122,6 +123,7 @@ namespace dll
 			int GetFrame();
 			uint16_t GetType() const;
 
+			virtual FPOINT AINextMove(FPOINT hero) = 0;
 			virtual bool Move(float gear, float to_where_x = 0, float to_where_y = 0) = 0;
 			virtual void Release() = 0;
 	};
@@ -134,6 +136,7 @@ namespace dll
 	public:
 		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
 		
+		FPOINT AINextMove(FPOINT hero) override;
 		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
 		void Release() override;
 	};
@@ -146,6 +149,7 @@ namespace dll
 	public:
 		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
 
+		FPOINT AINextMove(FPOINT hero) override;
 		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
 		void Release() override;
 	};
@@ -158,6 +162,7 @@ namespace dll
 	public:
 		friend SERVENG_API BASE_OBJECT* ObjectFactory(uint16_t what, float first_x, float first_y);
 
+		FPOINT AINextMove(FPOINT hero) override;
 		bool Move(float gear, float to_where_x = 0, float to_where_y = 0) override;
 		void Release() override;
 	};
