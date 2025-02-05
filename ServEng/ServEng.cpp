@@ -249,7 +249,7 @@ void dll::BASE_OBJECT::SetPathInfo(float _ex, float _ey)
 		return;
 	}
 	
-	slope = (move_ey - move_sy) / (move_ex / move_sx);
+	slope = (move_ey - move_sy) / (move_ex - move_sx);
 	intercept = move_sy - move_sx * slope;
 }
 float dll::BASE_OBJECT::Distance(FPOINT targ_point, FPOINT my_point)
@@ -513,6 +513,7 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 	{
 		if (move_sx > move_ex)
 		{
+			dir = dirs::left;
 			if (start.x - my_speed >= 0)
 			{
 				start.x -= my_speed;
@@ -523,6 +524,7 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 		}
 		if (move_sx < move_ex)
 		{
+			dir = dirs::right;
 			if (end.x + my_speed <= scr_width)
 			{
 				start.x += my_speed;
@@ -558,6 +560,7 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 
 	if (move_sx > move_ex)
 	{
+		dir = dirs::left;
 		if (start.x - my_speed >= 0)
 		{
 			start.x -= my_speed;
@@ -569,6 +572,7 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 	}
 	if (move_sx < move_ex)
 	{
+		dir = dirs::right;
 		if (end.x + my_speed <= scr_width)
 		{
 			start.x += my_speed;
