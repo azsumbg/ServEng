@@ -496,10 +496,144 @@ void dll::EVILS::Release()
 
 /////////////////////////////////////
 
+// HERO *****************************
 
+dll::HERO::HERO(uint16_t _what_evil, float put_x, float put_y) :BASE_OBJECT(_what_evil, put_x, put_y) {};
+FPOINT dll::HERO::AINextMove(FPOINT hero)
+{
+	return hero;
+}
+bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
+{
+	float my_speed = speed + gear / 10.0f;
 
+	SetPathInfo(to_where_x, to_where_y);
 
+	if (hor_line)
+	{
+		if (move_sx > move_ex)
+		{
+			if (start.x - my_speed >= 0)
+			{
+				start.x -= my_speed;
+				SetEdges();
+				if (start.x <= move_ex)return false;
+				return true;
+			}
+		}
+		if (move_sx < move_ex)
+		{
+			if (end.x + my_speed <= scr_width)
+			{
+				start.x += my_speed;
+				SetEdges();
+				if (end.x >= move_ex)return false;
+				return true;
+			}
+		}
+	}
+	if (vert_line)
+	{
+		if (move_sy > move_ey)
+		{
+			if (start.y - my_speed >= sky)
+			{
+				start.y -= my_speed;
+				SetEdges();
+				if (start.y <= move_ey)return false;
+				return true;
+			}
+		}
+		if (move_sy < move_ey)
+		{
+			if (end.y + my_speed <= ground)
+			{
+				start.y += my_speed;
+				SetEdges();
+				if (end.y >= move_ey)return false;
+				return true;
+			}
+		}
+	}
 
+	if (move_sx > move_ex)
+	{
+		if (start.x - my_speed >= 0)
+		{
+			start.x -= my_speed;
+			start.y = start.x * slope + intercept;
+			SetEdges();
+			if (start.x <= move_ex)return false;
+			return true;
+		}
+	}
+	if (move_sx < move_ex)
+	{
+		if (end.x + my_speed <= scr_width)
+		{
+			start.x += my_speed;
+			start.y = start.x * slope + intercept;
+			SetEdges();
+			if (end.x >= move_ex)return false;
+			return true;
+		}
+	}
+
+	return false;
+}
+void dll::HERO::Release()
+{
+	delete this;
+}
+
+/////////////////////////////////////
+ 
+// ASSETS *************************** 
+
+dll::ASSETS::ASSETS(uint16_t _what_evil, float put_x, float put_y) :BASE_OBJECT(_what_evil, put_x, put_y) {};
+FPOINT dll::ASSETS::AINextMove(FPOINT hero)
+{
+	return hero;
+}
+bool dll::ASSETS::Move(float gear, float to_where_x, float to_where_y)
+{
+	float my_speed = speed + gear / 10.0f;
+
+	switch (dir)
+	{
+	case dirs::up:
+		start.y -= my_speed;
+		SetEdges();
+		if (start.y <= sky)return false;
+		break;
+
+	case dirs::down:
+		start.y += my_speed;
+		SetEdges();
+		if (end.y >= ground)return false;
+		break;
+
+	case dirs::left:
+		start.x -= my_speed;
+		SetEdges();
+		if (end.x <= 0)return false;
+		break;
+
+	case dirs::right:
+		start.x += my_speed;
+		SetEdges();
+		if (start.x >= scr_width)return false;
+		break;
+	}
+
+	return true;
+}
+void dll::ASSETS::Release()
+{
+	delete this;
+}
+
+///////////////////////////////////// 
 
 // FACTORY ****************************
 
