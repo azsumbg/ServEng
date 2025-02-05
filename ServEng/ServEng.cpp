@@ -242,7 +242,7 @@ void dll::BASE_OBJECT::SetPathInfo(float _ex, float _ey)
 		vert_line = true;
 		return;
 	}
-	if ((move_ey > move_sy && move_ey - (move_sx + height) == 0) || (move_ey < move_sy && move_sy - (move_ey + height) == 0)
+	if ((move_ey > move_sy && move_ey - (move_sy + height) == 0) || (move_ey < move_sy && move_sy - (move_ey + height) == 0)
 		|| move_ey == move_sy)
 	{
 		hor_line = true;
@@ -344,8 +344,8 @@ dll::EVILS::EVILS(uint16_t _what_evil, float put_x, float put_y) :BASE_OBJECT(_w
 FPOINT dll::EVILS::AINextMove(FPOINT hero)
 {
 	if (Distance(hero, center) <= 100)return hero;
-	else if (dir == dirs::left)return FPOINT{ 0,center.y };
-	else if (dir == dirs::right)return FPOINT{ scr_width, center.y };
+	else if (dir == dirs::left)return FPOINT{ 0,start.y };
+	else if (dir == dirs::right)return FPOINT{ scr_width, start.y };
 		
 	return center;
 }
@@ -392,7 +392,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			start.y -= now_speed;
 			SetEdges();
-			if (start.y <= move_ey)
+			if (start.y <= move_ey || start.y <= sky)
 			{
 				SetPathInfo(start.x, ground);
 				return false;
@@ -403,14 +403,18 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			start.y += now_speed;
 			SetEdges();
-			if (end.y >= move_ey)
+			if (end.y >= move_ey || end.y >= ground)
 			{
 				SetPathInfo(start.x, sky);
 				return false;
 			}
 			return true;
 		}
-
+		else
+		{
+			if (center.x <= scr_width)dir = dirs::right;
+			else dir = dirs::left;
+		}
 	}
 
 	if (move_sx > move_ex)
@@ -470,6 +474,12 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 			return false;
 		}
 		return true;
+	}
+	else
+	{
+		if (dir == dirs::left)dir = dirs::right;
+		else if (dir == dirs::right)dir = dirs::left;
+		return false;
 	}
 
 	if (start.y < sky)
