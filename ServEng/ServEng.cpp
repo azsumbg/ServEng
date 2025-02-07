@@ -109,7 +109,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish2:
 		SetNewDims(65.0f, 33.0f);
 		dir = dirs::left;
-		strenght = 8;
+		strenght = 7;
 		max_frames = 5;
 		frame_delay = 14;
 		speed = 0.7f;
@@ -118,7 +118,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish3:
 		SetNewDims(65.0f, 40.0f);
 		dir = dirs::left;
-		strenght = 10;
+		strenght = 9;
 		max_frames = 11;
 		frame_delay = 6;
 		speed = 0.5f;
@@ -127,7 +127,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish4:
 		SetNewDims(59.0f, 45.0f);
 		dir = dirs::left;
-		strenght = 12;
+		strenght = 11;
 		max_frames = 39;
 		frame_delay = 2;
 		speed = 0.4f;
@@ -136,7 +136,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish5:
 		SetNewDims(65.0f, 70.0f);
 		dir = dirs::left;
-		strenght = 15;
+		strenght = 13;
 		max_frames = 7;
 		frame_delay = 10;
 		speed = 0.3f;
@@ -145,7 +145,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish6:
 		SetNewDims(75.0f, 65.0f);
 		dir = dirs::left;
-		strenght = 18;
+		strenght = 15;
 		max_frames = 15;
 		frame_delay = 5;
 		speed = 0.4f;
@@ -154,7 +154,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish7:
 		SetNewDims(80.0f, 52.0f);
 		dir = dirs::left;
-		strenght = 20;
+		strenght = 18;
 		max_frames = 3;
 		frame_delay = 25;
 		speed = 0.4f;
@@ -163,7 +163,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish8:
 		SetNewDims(85.0f, 45.0f);
 		dir = dirs::left;
-		strenght = 22;
+		strenght = 20;
 		max_frames = 7;
 		frame_delay = 10;
 		speed = 0.3f;
@@ -172,7 +172,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case fish9:
 		SetNewDims(90.0f, 35.0f);
 		dir = dirs::left;
-		strenght = 25;
+		strenght = 23;
 		max_frames = 7;
 		frame_delay = 10;
 		speed = 0.7f;
@@ -181,7 +181,7 @@ dll::BASE_OBJECT::BASE_OBJECT(uint16_t _what, float _wherex, float _wherey) :PRO
 	case hero:
 		SetNewDims(85.0f, 55.0f);
 		dir = dirs::right;
-		strenght = 10;
+		strenght = 12;
 		max_frames = 24;
 		frame_delay = 3;
 		speed = 0.8f;
@@ -236,12 +236,22 @@ void dll::BASE_OBJECT::SetPathInfo(float _ex, float _ey)
 	hor_line = false;
 	vert_line = false;
 
-	if ((move_ex > move_sx && move_ex - (move_sx + width) == 0) || (move_ex < move_sx && move_sx - (move_ex + width) == 0)
-		|| move_ex == move_sx)
+	if (move_ex == move_sx)
 	{
 		vert_line = true;
 		return;
 	}
+	else if (move_ex > move_sx && move_sx + width == move_ex)
+	{
+		vert_line = true;
+		return;
+	}
+	else if (move_ex < move_sx && move_sx - width == move_ex)
+	{
+		vert_line = true;
+		return;
+	}
+
 	if ((move_ey > move_sy && move_ey - (move_sy + height) == 0) || (move_ey < move_sy && move_sy - (move_ey + height) == 0)
 		|| move_ey == move_sy)
 	{
@@ -359,7 +369,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 	{
 		if (dir == dirs::right)
 		{
-			if (end.x + now_speed <= scr_width)
+			if (end.x + now_speed < scr_width)
 			{
 				start.x += now_speed;
 				SetEdges();
@@ -373,7 +383,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		}
 		else if (dir == dirs::left)
 		{
-			if (start.x - now_speed >= 0)
+			if (start.x - now_speed > 0)
 			{
 				start.x -= now_speed;
 				SetEdges();
@@ -392,7 +402,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			start.y -= now_speed;
 			SetEdges();
-			if (start.y <= move_ey || start.y <= sky)
+			if (start.y < move_ey || start.y < sky)
 			{
 				SetPathInfo(start.x, ground);
 				return false;
@@ -414,6 +424,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			if (center.x <= scr_width)dir = dirs::right;
 			else dir = dirs::left;
+			return true;
 		}
 	}
 
@@ -427,6 +438,7 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			start.x = 0;
 			SetEdges();
+			dir = dirs::right;
 			SetPathInfo(scr_width, start.y);
 			return false;
 		}
@@ -434,14 +446,12 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 		{
 			start.y = sky;
 			SetEdges();
-			SetPathInfo(start.x, ground);
 			return false;
 		}
 		if (end.y > ground)
 		{
 			start.y = ground - height;
 			SetEdges();
-			SetPathInfo(start.x, sky);
 			return false;
 		}
 		return true;
@@ -457,43 +467,71 @@ bool dll::EVILS::Move(float gear, float to_where_x, float to_where_y)
 			start.x = scr_width - width;
 			SetEdges();
 			SetPathInfo(0, start.y);
+			dir = dirs::left;
 			return false;
 		}
 		if (start.y < sky)
 		{
 			start.y = sky;
 			SetEdges();
-			SetPathInfo(start.x, ground);
 			return false;
 		}
 		if (end.y > ground)
 		{
 			start.y = ground - height;
 			SetEdges();
-			SetPathInfo(start.x, sky);
 			return false;
 		}
 		return true;
 	}
 	else
 	{
-		if (dir == dirs::left)dir = dirs::right;
-		else if (dir == dirs::right)dir = dirs::left;
-		return false;
+		if (dir == dirs::left)
+		{
+			dir = dirs::right;
+			if (start.y < sky)
+			{
+				start.y = sky;
+				SetEdges();
+				return false;
+			}
+			if (end.y > ground)
+			{
+				start.y = ground - height;
+				SetEdges();
+				return false;
+			}
+			return false;
+		}
+		else if (dir == dirs::right)
+		{
+			dir = dirs::left;
+			if (start.y < sky)
+			{
+				start.y = sky;
+				SetEdges();
+				return false;
+			}
+			if (end.y > ground)
+			{
+				start.y = ground - height;
+				SetEdges();
+				return false;
+			}
+			return false;
+		}
 	}
 
 	if (start.y < sky)
 	{
 		start.y = sky;
 		SetEdges();
-		SetPathInfo(start.x, ground);
 		return false;
 	}
 	if (end.y > ground)
 	{
 		start.y = ground - height;
 		SetEdges();
-		SetPathInfo(start.x, sky);
 		return false;
 	}
 	
@@ -576,7 +614,18 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 			start.x -= my_speed;
 			start.y = start.x * slope + intercept;
 			SetEdges();
-			if (start.x <= move_ex)return false;
+			if (end.y > ground)
+			{
+				start.y = ground - height;
+				SetEdges();
+			}
+			if (start.y < sky)
+			{
+				start.y = sky;
+				SetEdges();
+			}
+
+			if (end.x <= move_ex)return false;
 			return true;
 		}
 	}
@@ -588,7 +637,17 @@ bool dll::HERO::Move(float gear, float to_where_x, float to_where_y)
 			start.x += my_speed;
 			start.y = start.x * slope + intercept;
 			SetEdges();
-			if (end.x >= move_ex)return false;
+			if (end.y > ground)
+			{
+				start.y = ground - height;
+				SetEdges();
+			}
+			if (start.y < sky)
+			{
+				start.y = sky;
+				SetEdges();
+			}
+			if (start.x >= move_ex)return false;
 			return true;
 		}
 	}
