@@ -241,12 +241,12 @@ void dll::BASE_OBJECT::SetPathInfo(float _ex, float _ey)
 		vert_line = true;
 		return;
 	}
-	else if (move_ex > move_sx && move_sx + width == move_ex)
+	else if (move_ex > move_sx && move_ex <= move_sx + width)
 	{
 		vert_line = true;
 		return;
 	}
-	else if (move_ex < move_sx && move_sx - width == move_ex)
+	else if (move_ex < move_sx && move_ex >= move_sx - width / 2)
 	{
 		vert_line = true;
 		return;
